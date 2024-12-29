@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function (req, res) {
-    const vmIpAddress = process.env.VM_IP_ADDRESS || '192.168.179.134';
+    const vmIpAddress = process.env.VM_IP_ADDRESS ;
     res.send(`
         <html lang="en">
         <head>
