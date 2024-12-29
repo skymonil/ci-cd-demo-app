@@ -37,6 +37,10 @@
             margin: 25px 0;
         }
     </style>
+    <script>
+        // This script will embed the environment variable into the HTML
+        window.vmIpAddress = '<%= process.env.VM_IP_ADDRESS %>';
+    </script>
 </head>
 <body>
     <div class="container" id="container">
@@ -63,33 +67,42 @@
     </div>
 
     <script>
-        const vmIpAddress = '192.168.179.134';
-
         (async function init() {
-            const response = await fetch(`http://${vmIpAddress}:3000/get-profile`);
-            console.log("response", response);
-            const user = await response.json();
-            console.log(JSON.stringify(user));
+            const ipAddress = window.vmIpAddress;
+            if (ipAddress) {
+                const response = await fetch(`http://${ipAddress}:3000/get-profile`);
+                console.log("response", response);
+                const user = await response.json();
+                console.log(JSON.stringify(user));
 
-            document.getElementById('name').textContent = user.name ? user.name : 'Anna Smith';
-            document.getElementById('email').textContent = user.email ? user.email : 'anna.smith@example.com';
-            document.getElementById('interests').textContent = user.interests ? user.interests : 'coding';
+                document.getElementById('name').textContent = user.name ? user.name : 'Anna Smith';
+                document.getElementById('email').textContent = user.email ? user.email : 'anna.smith@example.com';
+                document.getElementById('interests').textContent = user.interests ? user.interests : 'coding';
 
-            const cont = document.getElementById('container');
-            cont.style.display = 'block';
+                const cont = document.getElementById('container');
+                cont.style.display = 'block';
+            } else {
+                console.error('Failed to get IP address');
+            }
         })();
 
         async function handleUpdateProfileRequest() {
+            const ipAddress = window.vmIpAddress;
+            if (!ipAddress) {
+                console.error('Failed to get IP address');
+                return;
+            }
+
             const contEdit = document.getElementById('container-edit');
             const cont = document.getElementById('container');
 
             const payload = {
-                name: document.getElementById('input-name').value, 
-                email: document.getElementById('input-email').value, 
+                name: document.getElementById('input-name').value,
+                email: document.getElementById('input-email').value,
                 interests: document.getElementById('input-interests').value
             };
-            
-            const response = await fetch(`http://${vmIpAddress}:3000/update-profile`, {
+
+            const response = await fetch(`http://${ipAddress}:3000/update-profile`, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
