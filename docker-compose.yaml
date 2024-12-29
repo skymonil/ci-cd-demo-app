@@ -1,6 +1,6 @@
 services:
   my-app:
-    image: 975049978724.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
+    image: tech-app
     ports:
       - 3000:3000
   mongodb:
