@@ -63,63 +63,48 @@
     </div>
 
     <script>
-        let vmIpAddress;
+        const vmIpAddress = '192.168.179.134';
 
         (async function init() {
-            try {
-                // Fetch the IP address from IPify
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                vmIpAddress = ipData.ip; // Use the fetched IP address
+            const response = await fetch(`http://${vmIpAddress}:3000/get-profile`);
+            console.log("response", response);
+            const user = await response.json();
+            console.log(JSON.stringify(user));
 
-                console.log(`Fetched IP address: ${vmIpAddress}`);
+            document.getElementById('name').textContent = user.name ? user.name : 'Anna Smith';
+            document.getElementById('email').textContent = user.email ? user.email : 'anna.smith@example.com';
+            document.getElementById('interests').textContent = user.interests ? user.interests : 'coding';
 
-                // Fetch the user profile from the backend
-                const response = await fetch(`http://${vmIpAddress}:3000/get-profile`);
-                const user = await response.json();
-
-                // Populate the UI with user data
-                document.getElementById('name').textContent = user.name || 'Anna Smith';
-                document.getElementById('email').textContent = user.email || 'anna.smith@example.com';
-                document.getElementById('interests').textContent = user.interests || 'coding';
-
-                // Show the container
-                document.getElementById('container').style.display = 'block';
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            const cont = document.getElementById('container');
+            cont.style.display = 'block';
         })();
 
         async function handleUpdateProfileRequest() {
-            try {
-                const contEdit = document.getElementById('container-edit');
-                const cont = document.getElementById('container');
+            const contEdit = document.getElementById('container-edit');
+            const cont = document.getElementById('container');
 
-                const payload = {
-                    name: document.getElementById('input-name').value,
-                    email: document.getElementById('input-email').value,
-                    interests: document.getElementById('input-interests').value
-                };
+            const payload = {
+                name: document.getElementById('input-name').value, 
+                email: document.getElementById('input-email').value, 
+                interests: document.getElementById('input-interests').value
+            };
+            
+            const response = await fetch(`http://${vmIpAddress}:3000/update-profile`, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            const jsonResponse = await response.json();
 
-                const response = await fetch(`http://${vmIpAddress}:3000/update-profile`, {
-                    method: "POST",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                const jsonResponse = await response.json();
+            document.getElementById('name').textContent = jsonResponse.name;
+            document.getElementById('email').textContent = jsonResponse.email;
+            document.getElementById('interests').textContent = jsonResponse.interests;
 
-                document.getElementById('name').textContent = jsonResponse.name;
-                document.getElementById('email').textContent = jsonResponse.email;
-                document.getElementById('interests').textContent = jsonResponse.interests;
-
-                cont.style.display = 'block';
-                contEdit.style.display = 'none';
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            cont.style.display = 'block';
+            contEdit.style.display = 'none';
         }
 
         function updateProfile() {
